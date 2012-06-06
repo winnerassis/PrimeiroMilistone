@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+	<project name="Meu-ANT" default="deploy">
+
+	<property name="TOMCAT_HOME" value="C:\apache-tomcat-5.5.35\webapps" />
+
+	<target name="init">
+		<echo>criando estrutura de diretórios...</echo>  
+		<mkdir dir="build/classes" />
+		<mkdir dir="dist" />
+		<echo>Concluido!</echo> 
+	</target>
+
+	<target name="compile" depends="init">
+		<echo>Iniciando compilação ...</echo> 
+		<javac srcdir="src" destdir="build/classes"/>
+		<echo>Compilação concluida!</echo> 
+	</target>
+
+	<target name="jar" depends="compile,init" >
+		<echo>Garando arquivo .jar...</echo> 
+		<jar destfile="dist/project.jar" basedir="build/classes"/>
+		<echo>Concluido!</echo> 
+	</target>
+
+	<target name="javadoc" depends="jar,compile,init" >
+		<echo>Garando javadoc das classes...</echo> 
+		<javadoc destdir="diretorio_do_javadoc" sourcepath="src"/>
+		<echo>Javadoc concluido!</echo>
+	</target>
+
+	<!-- gera o .war e copia para a pasta dist do projeto -->  
+    	<target name="war" depends="javadoc,jar,compile,init"> 
+        	<echo>Gerando arquivo.war ...</echo>  
+		<war destfile="${basedir}.war" webxml="WebContent\WEB-INF\web.xml">
+            		<fileset dir="${basedir}">  
+                		<include name="**/*.jsp"/>                
+                		<include name="**/*.html"/>               
+            		</fileset>  
+			<classes dir="build\classes"/>
+       		</war>  
+		<copy file="${basedir}.war" todir="${basedir}/dist" /> 
+		<echo>.war concluido!</echo>
+    	</target>  
+
+	<!-- Move o arquivo.war para webapps -->
+	<target name="deploy" depends="war,javadoc,jar,compile,init">  
+        	<echo>Fazendo o deploy no tomcat ...</echo>  
+	       	<copy file="${basedir}.war" todir="${TOMCAT_HOME}" />  
+		<delete file="${basedir}.war" />  
+		<echo>Deploy concluido!</echo>
+    	</target> 
+
+</project>
